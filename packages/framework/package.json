@@ -1,0 +1,10 @@
+{
+    "name": "@xui/framework",
+    "version": "0.0.1",
+    "devDependencies": {
+        "typescript": "^4.8.2"
+    },
+    "scripts": {
+        "prepare": "tsc -p ."
+    }
+}
