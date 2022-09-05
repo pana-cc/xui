@@ -1,64 +1,115 @@
 
-const settings: unique symbol = Symbol("settings");
+interface CustomElementConstructorFunction extends Function, CustomElementConstructor, ElementDefinitionOptions {
+    tag?: string;
+    template?: string;
+}
+
+function element<TFunction extends CustomElementConstructorFunction>(target: TFunction): TFunction | void {
+    // If the `static tag = "my-component"` is ommited, infer a tag name
+    if (!target.tag) {
+        target.tag = target.name
+            .replace(/([A-Z]+|[A-Z][a-z]*)([A-Z])/, "$1-$2")
+            .toLowerCase();
+    }
+
+    Object.defineProperty(target.prototype, Symbol.toStringTag, {
+        get() {
+            return target.name;
+        },
+    });
+
+    // Define the custom element
+    customElements.define(target.tag, target, target);
+}
+
+const shadowRootFragment: unique symbol = Symbol("shadow root fragment");
 // declare global {
     interface Object {
-        [settings]: ElementSettings
+        /**
+         * Gets the {@link DocumentFragment} associated with the prototype of this web component.
+         */
+        [shadowRootFragment]: undefined | Error | DocumentFragment;
     }
 // }
 
-interface ElementSettings extends ElementDefinitionOptions {
-    /**
-     * Gets the custom Web Component define tag name.
-     */
-    readonly name: string;
-}
+function applyTemplate(this: HTMLElement) {
+    let fragment = this[shadowRootFragment];
 
-interface ElementSettingsArgs extends ElementDefinitionOptions {
-    name?: string;
-}
-
-function tagName<TFunction extends Function>(target: TFunction) {
-    const name = target.name.replace(/([a-z0–9])([A-Z])/, "$1-$2").toLowerCase();
-    if (name.indexOf("-") == -1) {
-        throw new Error(`Defined element for class' ${target.name}' lacks a dash in the auto-generated tag name '${name}'.`);
+    if (fragment instanceof Error) {
+        // The inital parse or tempalte resolution had resulted in error. We will rethrow, and won't try to parse again.
+        throw fragment;
     }
-    return name;
-}
 
-interface CustomElementConstructorFunction extends Function, CustomElementConstructor {
-}
-
-function element(settings?: ElementSettingsArgs): <TFunction extends CustomElementConstructorFunction>(target: TFunction) => TFunction | void;
-function element<TFunction extends CustomElementConstructorFunction>(target: TFunction): TFunction | void;
-function element<TFunction extends CustomElementConstructorFunction>(args?: ElementSettingsArgs | TFunction) {
-    if (args instanceof Function) {
-        // Args here is target: TFunction
-        const name = tagName(args);
-        args[settings] = { name }
-        customElements.define(name, args);
-    } else if (args) {
-        if ("name" in args) {
-            if (args.name.indexOf("-") == -1) {
-                throw new Error(`Defined element tag name lacks a dash '${args.name}'`);
+    if (fragment === undefined) {
+        // Not yet loaded. Perform the initial parse.
+        const proto = Object.getPrototypeOf(this);
+        try {
+            const parser = new DOMParser();
+            const document = parser.parseFromString((this.constructor as CustomElementConstructorFunction).template, "text/html");
+            const templates = document.getElementsByTagName("template");
+            let template: null | HTMLElement = null;
+    
+            if (templates.length == 1 && (!templates[0].id || templates[0].id == this.tagName)) {
+                template = templates[0];
+            } else {
+                template = document.getElementById(this.tagName);
             }
-        }
+    
+            if (!(template instanceof HTMLTemplateElement)) {
+                throw new Error(`Failed to parse a template for ${this}, looked for a single <template> or a <template id="${this.tagName}">. Got: ${template}`);
+            }
 
-        return <TFunction extends Function>(ctor: TFunction) => {
-            let name = args.name ?? tagName(ctor);
-            ctor[settings] = { ...args, name };
-            customElements.define(name, ctor as any, args);
+            fragment = template.content;
+            proto[shadowRootFragment] = fragment;
+        } catch (e) {
+            proto[shadowRootFragment] = e;
+            throw e;
         }
-    } else {
-        return element;
     }
+
+    this.attachShadow({ mode: 'open' }).appendChild(fragment.cloneNode(true));
 }
 
-@element
-class XuiButton extends HTMLElement {
+@element class XUIButton extends HTMLElement {
+    static template = `
+        <template>
+            <style>
+                :host {
+                    color: var(--xui-button-color);
+                    font-family: var(--xui-input-font-family);
+
+                    background: var(--xui-button-background);
+                    border: 1px solid var(--xui-button-border);
+                    border-radius: var(--xui-input-border-radius);
+
+                    cursor: pointer;
+                    user-select: none;
+                    padding: 0.2em 3em;
+                }
+                :host(:hover) {
+                    background: var(--xui-button-background-hover);
+                }
+                :host(:focus-visible) {
+                    outline:var(--xui-focus-outline) !important;
+                    outline-offset: var(--xui-focus-offset);
+                }
+            </style>
+            <slot></slot>
+        </template>`;
+
+    protected connectedCallback() {
+        applyTemplate.apply(this);
+    }
+
+    protected disconnectedCallback() {}
+    protected attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {}
+    protected adoptedCallback() {}
 }
 
-@element({
-    name: "xui-button2"
-})
-class Button2 extends HTMLElement {
+@element class XUISubmit extends HTMLInputElement {
+    static extends = "input";
+}
+
+@element class XUIForm extends HTMLFormElement {
+    static extends = "form";
 }

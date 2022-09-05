@@ -1,10 +1,81 @@
 <html>
 <head>
     <script src="index.js"></script>
+    <link rel="stylesheet" href="index.css" rel="preload">
 </head>
 <body>
     <h1>Hello World!</h1>
-    <xui-button>Button</xui-button>
-    <xui-other>Other</xui-other>
+    
+    <h2>Forms!</h2>
+    <form is="xui-form">
+        <fieldset>
+            <legend>User</legend>
+            <label for="fname">First name:</label><br>
+            <input type="text" id="fname" name="fname"><br>
+            <label for="lname">Last name:</label><br>
+            <input type="text" id="lname" name="lname"><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Auto</legend>
+            <select id="cars1" name="cars">
+                <option value="volvo">Volvo</option>
+                <option value="saab">Saab</option>
+                <option value="fiat" selected>Fiat</option>
+                <option value="audi">Audi</option>
+            </select>
+            <select id="cars2" name="cars" size="3" multiple>
+                <option value="volvo">Volvo</option>
+                <option value="saab">Saab</option>
+                <option value="fiat" selected>Fiat</option>
+                <option value="audi">Audi</option>
+            </select>
+            <select name="cars" id="cars3">
+                <optgroup label="Swedish Cars">
+                    <option value="volvo">Volvo</option>
+                    <option value="saab">Saab</option>
+                </optgroup>
+                <optgroup label="German Cars">
+                    <option value="mercedes">Mercedes</option>
+                    <option value="audi">Audi</option>
+                </optgroup>
+            </select>
+        </fieldset>
+        <textarea name="message" rows="10" cols="30">The cat was playing in the garden.</textarea><br>
+
+        <input list="browsers">
+        <datalist id="browsers">
+          <option value="Internet Explorer">
+          <option value="Firefox">
+          <option value="Chrome">
+          <option value="Opera">
+          <option value="Safari">
+        </datalist>
+
+        <fieldset>
+            <legend>Calculator</legend>
+            0
+            <input type="range"  id="a" name="a" value="50">
+            100 +
+            <input type="number" id="b" name="b" value="50">
+            =
+            <output name="x" for="a b">125</output>
+        </fieldset>
+
+        <button type="button">Button 1</button>
+        <button type="button">Button 2</button><br>
+        <button type="submit">Submit Button</button><br>
+
+        <input type="button" value="Bite me!">
+        <input type="button" value="OK"><br>
+
+        <input type="submit" value="Submit" is="xui-submit">
+    </form>
+
+    <h2>App Input Elements</h2>
+    <div style="display: flex; gap: 8px; padding: 16px; ">
+        <xui-button tabindex="0">OK</xui-button>
+        <xui-button tabindex="0">Cancel</xui-button>
+    </div>
 </body>
 </html>

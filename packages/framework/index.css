@@ -1,0 +1,60 @@
+body {
+    /* general */
+    --xui-focus: orange;
+    --xui-focus-outline: 2px solid var(--xui-focus);
+    --xui-focus-offset: 0px;
+
+    --xui-input-border-radius: 5px;
+    --xui-input-font-family: Arial, Helvetica, sans-serif;
+    --xui-input-border: gray;
+
+    /* button styles */
+    --xui-button-background: darkgray;
+    --xui-button-background-hover: #66D3FA;
+    --xui-button-color: white;
+    --xui-button-border: gray;
+
+    --xui-button-primary-background: #2565AE;
+    --xui-button-primary-background-hover: #66D3FA;
+    --xui-button-primary-color: white;
+    --xui-button-primary-border: #0F5298;
+}
+
+form[is=xui-form] input {
+    font-family: var(--xui-input-font-family);
+    border-radius: var(--xui-input-border-radius);
+}
+
+form[is=xui-form] input[type=submit],
+form[is=xui-form] input[type=button] {
+    font-family: var(--xui-input-font-family);
+    cursor: pointer;
+    user-select: none;
+    /* padding: 0.2em 3em; */
+}
+form[is=xui-form] input[type=button] {
+    color: var(--xui-button-color);
+    background: var(--xui-button-background);
+    border: 1px solid var(--xui-button-border);
+}
+form[is=xui-form] input[type=submit] {
+    color: var(--xui-button-primary-color);
+    background: var(--xui-button-primary-background);
+    border: 1px solid var(--xui-button-primary-border);
+}
+form[is=xui-form] input[type=text] {
+    border: 1px solid var(--xui-input-border);
+}
+
+form[is=xui-form] input[type=submit]:hover {
+    background: var(--xui-button-primary-background-hover);
+}
+form[is=xui-form] input[type=button]:hover {
+    background: var(--xui-button-background-hover);
+}
+
+form[is=xui-form] input:focus-visible,
+form[is=xui-form] input:focus-visible {
+    outline: var(--xui-focus-outline) !important;
+    outline-offset: var(--xui-focus-offset);
+}
